@@ -44,6 +44,35 @@ typedef struct Point2f {
     float y;
 } Point2f;
 
+// Wrapper for an individual std::vector<cv::Point2f>
+typedef struct Points2f {
+    Point2f *points;
+    int length;
+} Points2f;
+
+typedef sturct Points2fArr {
+    Points2f *data;
+    int length;
+} Points2fArr;
+
+// Wrapper for an individual cv::Point3f
+typedef struct Point3f {
+    float x;
+    float y;
+    float z;
+} Point3f;
+
+// Wrapper for an individual std::vector<cv::Point3f>
+typedef struct Points3f {
+    Point3f *points;
+    int length;
+} Points3f;
+
+typedef sturct Points3fArr {
+    Points3f *data;
+    int length;
+} Points3fArr;
+
 // Wrapper for an individual cv::cvPoint
 typedef struct Point {
     int x;
@@ -218,8 +247,24 @@ void Rects_Close(struct Rects rs);
 void Mats_Close(struct Mats mats);
 void Point_Close(struct Point p);
 void Points_Close(struct Points ps);
+void Point2f_Close(struct Point2f p);
+void Point2fs_Close(struct Points2f ps);
+void Point3f_Close(struct Point3f p);
+void Points3f_Close(struct Points3f ps);
 void DMatches_Close(struct DMatches ds);
 void MultiDMatches_Close(struct MultiDMatches mds);
+
+Points2f* Points2f_New(int length);
+Points2fArr* Points2fArr_New(int length);
+void Points2fArr_Set(Points2fArr ps, int row, int col, Point2f v);
+void Points2fArr_Close(Points2fArr p);
+Points3fArr* Points2fArray_New(int row, int col);
+
+Points3f* Points3f_New(int length);
+Points3fArr* Points3fArr_New(int length);
+void Points3fArr_Set(Points3fArr ps, int row, int col, Point3f v);
+void Points3fArr_Close(Points3fArr p);
+Points3fArr* Points3fArray_New(int row, int col);
 
 Mat Mat_New();
 Mat Mat_NewWithSize(int rows, int cols, int type);

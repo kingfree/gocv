@@ -125,7 +125,8 @@ Your pull requests will be greatly appreciated!
         - [ ] [SparsePyrLKOpticalFlow](https://docs.opencv.org/master/d7/d08/classcv_1_1SparsePyrLKOpticalFlow.html)
 
 - [ ] **calib3d. Camera Calibration and 3D Reconstruction - WORK STARTED**. The following functions still need implementation:
-    - [ ] Camera Calibration
+    - [ ] **Camera Calibration - WORK STARTED**
+        - [ ] [calibrateCamera](https://docs.opencv.org/master/d9/d0c/group__calib3d.html#ga3207604e4b1a1758aa66acb6ed5aa65d)
     - [ ] **Fisheye - WORK STARTED** The following functions still need implementation:
         - [ ] [calibrate](https://docs.opencv.org/3.4.1/db/d58/group__calib3d__fisheye.html#gad626a78de2b1dae7489e152a5a5a89e1)
         - [ ] [distortPoints](https://docs.opencv.org/3.4.1/db/d58/group__calib3d__fisheye.html#ga75d8877a98e38d0b29b6892c5f8d7765)

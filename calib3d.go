@@ -97,3 +97,12 @@ func GetOptimalNewCameraMatrixWithParams(cameraMatrix Mat, distCoeffs Mat, image
 	rt := C.struct_Rect{}
 	return newMat(C.GetOptimalNewCameraMatrixWithParams(cameraMatrix.Ptr(), distCoeffs.Ptr(), sz, C.double(alpha), newSize, &rt, C.bool(centerPrincipalPoint))), toRect(rt)
 }
+
+// CalibrateCameraSimple finds the camera intrinsic and extrinsic parameters from several views of a calibration pattern.
+//
+// For further details, please see:
+// https://docs.opencv.org/master/d9/d0c/group__calib3d.html#ga687a1ab946686f0d85ae0363b5af1d7b
+//
+func CalibrateCameraSimple() float64 {
+
+}

@@ -160,3 +160,28 @@ func TestInitUndistortRectifyMap(t *testing.T) {
 		t.Error("IMWrite failed")
 	}
 }
+
+func TestCalibrateCameraSimple(t *testing.T) {
+	count := 8
+	height := 13
+	width := 10
+	opoints = C.Points3fArray_New(8, 13*10)
+	ipoints = C.Points2fArray_New(8, 13*10)
+	realPoint := C.Point3f{0, 0, 0}
+	realPoint2 := C.Point2f{0, 0}
+	k := 0
+	for t = 0; t < count; t++ {
+		for i = 0; i < height; i++ {
+			for j = 0; j < width; j++ {
+				realPoint.x = i * size
+				realPoint.y = j * size
+				C.Points3fArr_Set(opoints, t, i*width+j, realPoint)
+				C.Points2fArr_Set(ipoints, t, i*width+j, realPoint2)
+			}
+		}
+	}
+	sz := Size{640, 480}
+	var cameraMatrix, distCoeffs C.Mat
+	var rvecs, tvecs C.Mats
+	C.CalibrateCameraSimple(opoints, ipoints, sz, *cameraMatrix, &distCoeffs, &rvecs, &tvecs)
+}

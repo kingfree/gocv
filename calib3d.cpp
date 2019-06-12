@@ -27,3 +27,39 @@ Mat GetOptimalNewCameraMatrixWithParams(Mat cameraMatrix,Mat distCoeffs,Size siz
     return mat;
 }
 
+std::vector<cv::Mat> Mats2Vector(Mats* mats) {
+    std::vector<cv::Mat> vec;
+    for (int i = 0; i < mats.length; ++i) {
+        vec.push_back(*mats.mats[i]);
+    }
+    return vec;
+}
+
+void Vector2Mats(std::vector<cv::Mat>& vec, Mats* mat) {
+    int n = vec.size();
+    if (mat->length < n) {
+        Mat* old = mat->mats;
+        mat->mats = (Mat*)realloc(old, n * sizeof(Mat));
+        free(old);
+    }
+    for (int i = 0; i < n; i++) {
+        mat->mats[i] = &vec[i];
+    }
+}
+
+double CalibrateCameraSimple(Points3fArr objectPoints, Points3fArr imagePoints,
+                             Size imageSize, Mat* cameraMatrix, Mat* distCoeffs,
+                             Mats* rvecs, Mats* tvecs) {
+    std::vector<std::vector<std::Point3f>> oP;
+    std::vector<std::vector<std::Point2f>> iP;
+    cv::Size sz(size.width, size.height);
+    std::vector<cv::Mat> rs, ts;
+    int flags = 0;
+    cv::TermCriteria tc(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 30,
+                        DBL_EPSILON);
+    double err = cv::calibrateCamera(oP, iP, sz, rs, ts, *cameraMatrix,
+                                     *distCoeffs, flags, tc);
+    Vector2Mats(rs, rvecs);
+    Vector2Mats(ts, tvecs);
+    return err;
+}
