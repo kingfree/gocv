@@ -666,7 +666,7 @@ void Points_Close(Points ps) {
 
 void Point_Close(Point p) {}
 
-void Points2f_Close(Points ps) {
+void Points2f_Close(Points2f ps) {
     for (size_t i = 0; i < ps.length; i++) {
         Point2f_Close(ps.points[i]);
     }
@@ -677,43 +677,44 @@ void Points2f_Close(Points ps) {
 void Point2f_Close(Point2f p) {}
 
 Points2f* Points2f_New(int length) {
-    Points2f* p = malloc(sizeof(Points2f));
+    Points2f* p = (Points2f*)malloc(sizeof(Points2f));
     p->length = length;
-    p->data = calloc(length, sizeof(Point2f));
+    p->points = (Point2f*)calloc(length, sizeof(Point2f));
     return p;
 }
 
 Points2fArr* Points2fArr_New(int length) {
-    Points2fArr* p = malloc(sizeof(Points2fArr));
+    Points2fArr* p = (Points2fArr*)malloc(sizeof(Points2fArr));
     p->length = length;
-    p->data = calloc(length, sizeof(Points2f));
+    p->data = (Points2f*)calloc(length, sizeof(Points2f));
     return p;
 }
 
 Points2fArr* Points2fArray_New(int row, int col) {
     Points2fArr* p = Points2fArr_New(row);
     for (int i = 0; i < row; i++) {
-        p->data[i] = Points2f_New(col);
+        p->data[i] = *Points2f_New(col);
     }
     return p;
 }
 
-void Points2fArr_Set(Points2fArr ps, int row, int col, Point2f v) {
-    asset(row <= ps->length);
-    asset(col <= ps->data[row]->length);
-    Point2f p = ps->data[row]->points[col];
+void Points2fArr_Set(Points2fArr* ps, int row, int col, Point2f v) {
+    // asset(row <= ps->length);
+    // asset(col <= ps->data[row]->length);
+    Point2f* p = &ps->data[row].points[col];
     p->x = v.x;
     p->y = v.y;
 }
 
 void Points2fArr_Close(Points2fArr p) {
     for (size_t i = 0; i < p.length; i++) {
-        Points3f_Close(p.data[i]);
+        Points2f_Close(p.data[i]);
     }
 
-    delete[] ps.data;
+    delete[] p.data;
 }
-void Points3f_Close(Point3f ps) {
+
+void Points3f_Close(Points3f ps) {
     for (size_t i = 0; i < ps.length; i++) {
         Point3f_Close(ps.points[i]);
     }
@@ -724,31 +725,31 @@ void Points3f_Close(Point3f ps) {
 void Point3f_Close(Point3f p) {}
 
 Points3f* Points3f_New(int length) {
-    Points3f* p = malloc(sizeof(Points3f));
+    Points3f* p = (Points3f*)malloc(sizeof(Points3f));
     p->length = length;
-    p->data = calloc(length, sizeof(Point3f));
+    p->points =(Point3f*)calloc(length, sizeof(Point3f));
     return p;
 }
 
 Points3fArr* Points3fArr_New(int length) {
-    Points3fArr* p = malloc(sizeof(Points3fArr));
+    Points3fArr* p = (Points3fArr*)malloc(sizeof(Points3fArr));
     p->length = length;
-    p->data = calloc(length, sizeof(Points3f));
+    p->data = (Points3f*)calloc(length, sizeof(Points3f));
     return p;
 }
 
 Points3fArr* Points3fArray_New(int row, int col) {
     Points3fArr* p = Points3fArr_New(row);
     for (int i = 0; i < row; i++) {
-        p->data[i] = Points3f_New(col);
+        p->data[i] = *Points3f_New(col);
     }
     return p;
 }
 
-void Points3fArr_Set(Points3fArr ps, int row, int col, Point3f v) {
-    asset(row <= ps->length);
-    asset(col <= ps->data[row]->length);
-    Point3f p = ps->data[row]->points[col];
+void Points3fArr_Set(Points3fArr* ps, int row, int col, Point3f v) {
+    // asset(row <= ps->length);
+    // asset(col <= ps->data[row]->length);
+    Point3f* p = &ps->data[row].points[col];
     p->x = v.x;
     p->y = v.y;
     p->z = v.z;
@@ -759,7 +760,7 @@ void Points3fArr_Close(Points3fArr p) {
         Points3f_Close(p.data[i]);
     }
 
-    delete[] ps.data;
+    delete[] p.data;
 }
 
 void Rects_Close(struct Rects rs) {

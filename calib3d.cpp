@@ -29,8 +29,8 @@ Mat GetOptimalNewCameraMatrixWithParams(Mat cameraMatrix,Mat distCoeffs,Size siz
 
 std::vector<cv::Mat> Mats2Vector(Mats* mats) {
     std::vector<cv::Mat> vec;
-    for (int i = 0; i < mats.length; ++i) {
-        vec.push_back(*mats.mats[i]);
+    for (int i = 0; i < mats->length; ++i) {
+        vec.push_back(*mats->mats[i]);
     }
     return vec;
 }
@@ -47,18 +47,34 @@ void Vector2Mats(std::vector<cv::Mat>& vec, Mats* mat) {
     }
 }
 
-double CalibrateCameraSimple(Points3fArr objectPoints, Points3fArr imagePoints,
-                             Size imageSize, Mat* cameraMatrix, Mat* distCoeffs,
+double CalibrateCameraSimple(Points3fArr objectPoints, Points2fArr imagePoints,
+                             Size imageSize, Mat cameraMatrix, Mat distCoeffs,
                              Mats* rvecs, Mats* tvecs) {
-    std::vector<std::vector<std::Point3f>> oP;
-    std::vector<std::vector<std::Point2f>> iP;
-    cv::Size sz(size.width, size.height);
+    std::vector<std::vector<cv::Point3f>> oP;
+    for (int i = 0; i < objectPoints.length; i++) {
+        std::vector<cv::Point3f> line;
+        for (int j = 0; j < objectPoints.data[i].length; j++) {
+            auto p = objectPoints.data[i].points[j];
+            line.push_back(cv::Point3f(p.x, p.y, p.z));
+        }
+        oP.push_back(line);
+    }
+    std::vector<std::vector<cv::Point2f>> iP;
+    for (int i = 0; i < imagePoints.length; i++) {
+        std::vector<cv::Point2f> line;
+        for (int j = 0; j < imagePoints.data[i].length; j++) {
+            auto p = imagePoints.data[i].points[j];
+            line.push_back(cv::Point2f(p.x, p.y));
+        }
+        iP.push_back(line);
+    }
+    cv::Size sz(imageSize.width, imageSize.height);
     std::vector<cv::Mat> rs, ts;
-    int flags = 0;
+    int flags = (cv::CALIB_ZERO_TANGENT_DIST | cv::CALIB_FIX_K1 | cv::CALIB_FIX_K2 |
+                 cv::CALIB_FIX_K3 | cv::CALIB_FIX_K4 | cv::CALIB_FIX_K5 | cv::CALIB_FIX_K6);
     cv::TermCriteria tc(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 30,
                         DBL_EPSILON);
-    double err = cv::calibrateCamera(oP, iP, sz, rs, ts, *cameraMatrix,
-                                     *distCoeffs, flags, tc);
+    double err = cv::calibrateCamera(oP, iP, sz, rs, ts, *cameraMatrix, *distCoeffs, flags);
     Vector2Mats(rs, rvecs);
     Vector2Mats(ts, tvecs);
     return err;

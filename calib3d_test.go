@@ -165,23 +165,28 @@ func TestCalibrateCameraSimple(t *testing.T) {
 	count := 8
 	height := 13
 	width := 10
-	opoints = C.Points3fArray_New(8, 13*10)
-	ipoints = C.Points2fArray_New(8, 13*10)
-	realPoint := C.Point3f{0, 0, 0}
-	realPoint2 := C.Point2f{0, 0}
-	k := 0
-	for t = 0; t < count; t++ {
-		for i = 0; i < height; i++ {
-			for j = 0; j < width; j++ {
-				realPoint.x = i * size
-				realPoint.y = j * size
-				C.Points3fArr_Set(opoints, t, i*width+j, realPoint)
-				C.Points2fArr_Set(ipoints, t, i*width+j, realPoint2)
+	size := 20
+	n := height * width
+	opoints := make([][]Point3f, count)
+	ipoints := make([][]Point2f, count)
+	for t := 0; t < count; t++ {
+		opoints[t] = make([]Point3f, n)
+		ipoints[t] = make([]Point2f, n)
+		for i := 0; i < height; i++ {
+			for j := 0; j < width; j++ {
+				k := i * width + j
+				opoints[t][k].X = float64(i * size)
+				opoints[t][k].Y = float64(j * size)
+				opoints[t][k].Z = 0.0
+				ipoints[t][k].X = 1.0 // need input
+				ipoints[t][k].Y = 1.0
 			}
 		}
 	}
-	sz := Size{640, 480}
-	var cameraMatrix, distCoeffs C.Mat
-	var rvecs, tvecs C.Mats
-	C.CalibrateCameraSimple(opoints, ipoints, sz, *cameraMatrix, &distCoeffs, &rvecs, &tvecs)
+	sz := image.Point{640, 480}
+	err, cameraMatrix, distCoeffs, rvecs, tvecs := CalibrateCameraSimple(opoints, ipoints, sz)
+	fmt.Printf("%v\n%v\n%v\n", err, cameraMatrix, distCoeffs)
+	for i := 0; i < count; i++ {
+		fmt.Printf("%v\n%v\n", rvecs[i], tvecs[i])
+	}
 }

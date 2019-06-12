@@ -98,11 +98,51 @@ func GetOptimalNewCameraMatrixWithParams(cameraMatrix Mat, distCoeffs Mat, image
 	return newMat(C.GetOptimalNewCameraMatrixWithParams(cameraMatrix.Ptr(), distCoeffs.Ptr(), sz, C.double(alpha), newSize, &rt, C.bool(centerPrincipalPoint))), toRect(rt)
 }
 
+type Point2f struct {
+	X, Y float64
+}
+
+type Point3f struct {
+	X, Y, Z float64
+}
+
 // CalibrateCameraSimple finds the camera intrinsic and extrinsic parameters from several views of a calibration pattern.
+//
+// @return error, cameraMatrix, distCoeffs, rvecs, tvecs
 //
 // For further details, please see:
 // https://docs.opencv.org/master/d9/d0c/group__calib3d.html#ga687a1ab946686f0d85ae0363b5af1d7b
 //
-func CalibrateCameraSimple() float64 {
-
+func CalibrateCameraSimple(objects [][]Point3f, images [][]Point2f, size image.Point) (float64, Mat, Mat, []Mat, []Mat) {
+	n := len(objects)
+	m := len(objects[0])
+	oPoints := C.Points3fArray_New(C.int(n), C.int(m))
+	for i := 0; i < n; i++ {
+		for j := 0; j < m; j++ {
+			point := C.Point3f{C.float(objects[i][j].X), C.float(objects[i][j].Y), C.float(objects[i][j].Z)}
+			C.Points3fArr_Set(oPoints, C.int(i), C.int(j), point)
+		}
+	}
+	n = len(images)
+	m = len(images[0])
+	iPoints := C.Points2fArray_New(C.int(n), C.int(m))
+	for i := 0; i < n; i++ {
+		for j := 0; j < m; j++ {
+			point := C.Point2f{C.float(images[i][j].X), C.float(images[i][j].Y)}
+			C.Points2fArr_Set(iPoints, C.int(i), C.int(j), point)
+		}
+	}
+	sz := C.Size{C.int(size.X), C.int(size.Y)}
+	zero := C.Scalar{C.double(0), C.double(0), C.double(0), C.double(0)}
+	cameraMatrix := C.Mat_NewWithSizeFromScalar(zero, 3, 3, MatTypeCV32F)
+	distCoeffs := C.Mat_NewWithSizeFromScalar(zero, 1, 5, MatTypeCV32F)
+	var rvecs, tvecs C.Mats
+	err := float64(C.CalibrateCameraSimple(*oPoints, *iPoints, sz, cameraMatrix, distCoeffs, &rvecs, &tvecs))
+	var Rs, ts []Mat
+	n = int(rvecs.length)
+	for i := 0; i < n; i++ {
+		Rs = append(Rs, newMat(C.Mats_get(rvecs, C.int(i))))
+		ts = append(ts, newMat(C.Mats_get(tvecs, C.int(i))))
+	}
+	return err, newMat(cameraMatrix), newMat(distCoeffs), Rs, ts
 }
